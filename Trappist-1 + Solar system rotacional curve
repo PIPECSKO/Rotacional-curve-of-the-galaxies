@@ -1,0 +1,83 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+# Solar System data
+x_data_solar = np.array([57.9, 108.2, 149.6, 228, 778.5, 1432, 2867, 4515, 5906.4])
+y_data_solar = np.array([47.4, 35, 29.8, 24.1, 13.1, 9.7, 6.8, 5.4, 4.7])
+
+# TRAPPIST-1 system data
+z_data_trappist = np.array([11.11 * 149.6 * 10**(-3), 15.21 * 149.6 * 10**(-3), 21.44 * 149.6 * 10**(-3),
+                            28.17 * 149.6 * 10**(-3), 37.1 * 149.6 * 10**(-3), 45.1 * 149.6 * 10**(-3),
+                            63 * 149.6 * 10**(-3)])
+w_data_trappist = np.array([2 * 3.14 * 11.11 * 149.6 * 10**(3) / (1.51 * 86400),
+                            2 * 3.14 * 15.21 * 149.6 * 10**(3) / (2.42 * 86400),
+                            2 * 3.14 * 21.44 * 149.6 * 10**(3) / (4.05 * 86400),
+                            2 * 3.14 * 28.17 * 149.6 * 10**(3) / (6.1 * 86400),
+                            2 * 3.14 * 37.1 * 149.6 * 10**(3) / (9.2 * 86400),
+                            2 * 3.14 * 45.1 * 149.6 * 10**(3) / (12.35 * 86400),
+                            2 * 3.14 * 63 * 149.6 * 10**(3) / (20 * 86400)])
+
+def func_solar_system(x, a):
+    return a / np.sqrt(x)
+
+# Fit for the Solar System
+popt_solar, _ = curve_fit(func_solar_system, x_data_solar, y_data_solar)
+a_fit_solar = popt_solar[0]
+print(f"Fitted function: y = {a_fit_solar} / sqrt(x)")
+x_fit_solar = np.linspace(x_data_solar.min(), x_data_solar.max(), 100)
+y_fit_solar = func_solar_system(x_fit_solar, a_fit_solar)
+
+# Fit for the TRAPPIST-1 system
+popt_trappist, _ = curve_fit(func_solar_system, z_data_trappist, w_data_trappist)
+b_fit_trappist = popt_trappist[0]
+print(f"Fitted function: w = {b_fit_trappist} / sqrt(z)")
+z_fit_trappist = np.linspace(z_data_trappist.min(), z_data_trappist.max(), 100)
+w_fit_trappist = func_solar_system(z_fit_trappist, b_fit_trappist)
+
+# Plot the original curve
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Plot the original curve and add a grid
+ax.scatter(x_data_solar, y_data_solar, label='Solar System', color='black')
+ax.plot(x_fit_solar, y_fit_solar, label='Fitted Solar System', color='b')
+ax.grid(True, linestyle='-', alpha=0.9)
+
+# Add labels to the original axis
+ax.set_xlabel('Distance - $10^6 km$', fontsize=12)
+ax.set_ylabel('Orbital Speed - $km/s$', fontsize=12)
+
+# Planet names in the Solar System
+planet_names_solar = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+for name, (x, y) in zip(planet_names_solar, zip(x_data_solar, y_data_solar)):
+    ax.annotate(name, (x, y), textcoords="offset points", xytext=(35, 16), ha='right', va='top', color='black', fontsize=10)
+
+# Main title for the Solar System function
+ax.set_title('Solar System and', loc='center', color='blue')
+ax.text(0.639, 1.011, 'TRAPPIST-1 Rotational Curve', transform=ax.transAxes, color='red', fontsize=12, ha='center')
+
+# Solar System legend in the bottom left corner
+ax.legend(['Solar System Planets', 'Fitted Solar System'], loc='lower left', fontsize=10)
+
+# Set up the secondary axis
+axins = inset_axes(ax, width="40%", height="40%", loc="upper right")
+axins.scatter(z_data_trappist, w_data_trappist, label='TRAPPIST-1 Planets', color='r')
+axins.plot(z_fit_trappist, w_fit_trappist, label='Fitted TRAPPIST-1', color='r')
+
+# Set label sizes on the secondary axis
+axins.tick_params(axis='both', labelsize=10)
+axins.set_xlabel('Distance - $10^6 km$', fontsize=10)
+axins.set_ylabel('Orbital Speed - $km/s$', fontsize=10)
+
+# TRAPPIST-1 legend in the upper right corner
+axins.legend(['TRAPPIST-1 Planets', 'Fitted TRAPPIST-1'], loc='upper right', fontsize=10)
+
+# Display the plots
+plt.grid()
+plt.show()
+
+StarMass1 = a_fit_solar**2 / (6.67 * 10**(-11) * 10**(-15))
+print("Solar System Star Mass:", StarMass1)
+StarMass2 = b_fit_trappist**2 / (6.67 * 10**(-11) * 10**(-15))
+print("TRAPPIST-1 Star Mass:", StarMass2)
