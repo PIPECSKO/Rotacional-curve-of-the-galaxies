@@ -1,0 +1,90 @@
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+import numpy as np
+from scipy.optimize import curve_fit
+
+data_file = "SS.txt"
+distances = []
+velocities = []
+planet_names = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+
+with open(data_file, 'r', encoding='utf-16', errors='ignore') as file:
+    for line in file:
+        line = line.strip().encode('utf-16', 'surrogatepass').decode('utf-16')
+        parts = line.strip().split('\t')
+        if len(parts) == 2:
+            distance, velocity = map(float, parts)
+            distances.append(distance)
+            velocities.append(velocity)
+
+planet_images = [
+    'mercury.png',
+    'venus.png',
+    'earth.png',
+    'mars.png',
+    'jupiter.png',
+    'saturn.png',
+    'uranus.png',
+    'neptune.png',
+    'pluto.png'
+]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Given data points
+x_data = np.array([57.9, 108.2, 149.6, 228, 778.5, 1432, 2867, 4515, 5906.4])
+y_data = np.array([47.4, 35, 29.8, 24.1, 13.1, 9.7, 6.8, 5.4, 4.7])
+
+# Define the function
+def func(x, a):
+    return a / np.sqrt(x)
+
+# Fit the function to the data points
+popt, _ = curve_fit(func, x_data, y_data)
+
+# Retrieve the optimized parameter
+a_fit = popt[0]
+
+print(f"Fitted function: y = {a_fit} / sqrt(x)")
+
+# Generate x values for the fitted curve
+x_fit = np.linspace(x_data.min(), x_data.max(), 100)
+y_fit = func(x_fit, a_fit)
+
+ax.scatter(distances, velocities, marker='o', color='black', label='Velocity')
+ax.plot(x_fit, y_fit, label='Fitted Curve', color='black')
+
+ax.set_title('Planetary Motion Speed and Distance from the Sun')
+ax.set_xlabel('Distance (10^{6} km)')
+ax.set_ylabel('Velocity (km/s)')
+ax.legend()
+ax.grid()
+
+# Set planet sizes
+zoom_levels = {
+    'Mercury': 0.03,
+    'Venus': 0.03,
+    'Earth': 0.02,
+    'Mars': 0.045,
+    'Jupiter': 0.045,
+    'Saturn': 0.079,
+    'Uranus': 0.052,
+    'Neptune': 0.02,
+    'Pluto': 0.02
+}
+
+for i, (planet_name, distance, velocity) in enumerate(zip(planet_names, distances, velocities)):
+    img = plt.imread(planet_images[i])
+
+    # Adjust zoom level based on planet_name
+    zoom_level = zoom_levels.get(planet_name, 0.02)
+
+    imagebox = OffsetImage(img, zoom=zoom_level)
+    ab = AnnotationBbox(imagebox, (distance, velocity), frameon=False, boxcoords="data", pad=0)
+    ax.add_artist(ab)
+    ab.set_zorder(10)
+
+    # Add planet names with x-axis offset
+    ax.annotate('---------------' + planet_name, (distance, velocity), textcoords="offset points", xytext=(42, 2), ha='center', fontsize=10)
+
+plt.show()
