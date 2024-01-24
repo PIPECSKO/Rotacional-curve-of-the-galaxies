@@ -1,0 +1,162 @@
+from vpython import *
+from math import *
+import random
+import matplotlib.pyplot as plt
+import time
+
+stars1 = []  # first arm
+stars2 = []  # second arm
+stars3 = []  # background stars
+
+center = []  
+for i in range(1):
+    d = 0
+    a = 0
+    center.append([0.5, d, a])
+
+for i in range(300):
+    d1 = random.uniform(1, 70)  # distance from center
+    a1 = random.uniform(-0.25, 0.25)  # initial angle, modified according to the rotational curve of the solar system
+    stars1.append([0.15, d1, a1])
+
+for i in range(300):
+    d2 = random.uniform(1, 70)
+    a2 = random.uniform(2.89, 3.39)
+    stars2.append([0.18, d2, a2])
+
+for i in range(700):
+    d3 = random.uniform(1, 70)
+    a3 = random.uniform(0, 6.28)
+    stars3.append([0.13, d3, a3])
+
+# Camera setup
+scene = canvas(title='Center', width=1250, height=690, center=vector(0, 0, 0), background=color.white)
+
+# Creating and placing stars
+center_objects = []
+stars1_objects = []
+stars2_objects = []
+stars3_objects = []
+
+for k in center: 
+    center_objects.append(sphere(pos=vec(k[1], 0, 0), radius=k[0], color=color.green))
+
+for star1 in stars1:
+    stars1_objects.append(sphere(pos=vec(star1[1], 0, 0), radius=star1[0], color=color.black))
+
+for star2 in stars2:
+    stars2_objects.append(sphere(pos=vec(star2[1], 0, 0), radius=star2[0], color=color.black))
+
+for star3 in stars3:
+    stars3_objects.append(sphere(pos=vec(star3[1], 0, 0), radius=star3[0], color=color.black))
+
+stars4 = []  # first arm
+stars5 = []  # second arm
+stars6 = []  # background stars
+
+center2 = [] 
+for o in range(1):
+    do = 0
+    ao = 0
+    center2.append([0.5, do, ao])
+
+for i in range(300):
+    d4 = random.uniform(1, 70)  # distance from center
+    a4 = random.uniform(-0.25, 0.25)  # initial angle, modified according to the rotational curve of the solar system
+    stars4.append([0.15, d4, a4])
+
+for i in range(300):
+    d5 = random.uniform(1, 70)
+    a5 = random.uniform(2.89, 3.39)
+    stars5.append([0.18, d5, a5])
+
+for i in range(700):
+    d6 = random.uniform(1, 70)
+    a6 = random.uniform(0, 6.28)
+    stars6.append([0.13, d6, a6])
+
+# Creating and placing stars
+center2_objects = []
+stars4_objects = []
+stars5_objects = []
+stars6_objects = []
+
+for p in center:  
+    center2_objects.append(sphere(pos=vec(p[1], 0, 15), radius=p[0], color=color.red))
+
+for star4 in stars4:
+    stars4_objects.append(sphere(pos=vec(star4[1], 0, 0), radius=star4[0], color=color.black))
+
+for star5 in stars5:
+    stars5_objects.append(sphere(pos=vec(star5[1], 0, 0), radius=star5[0], color=color.black))
+
+for star6 in stars6:
+    stars6_objects.append(sphere(pos=vec(star6[1], 0, 0), radius=star6[0], color=color.black))
+
+# Plotting setup
+fig, ax = plt.subplots()
+fig.suptitle("Rotational Curve of Our Galaxy Model")
+
+start_time = time.time()
+
+while time.time() - start_time < 2:
+    rate(1)  # Adjust the rate to control the waiting speed
+
+C = 0.03627454270114749
+
+# Simulation
+while True:
+    rate(100)  # frames per second
+    for j, star1 in enumerate(stars1):
+        star1[2] += C / sqrt(star1[1])
+        angle1 = star1[2]
+        x1 = star1[1] * cos(angle1)
+        y1 = star1[1] * sin(angle1)
+        stars1_objects[j].pos = vec(x1, y1, 0)
+
+    for g, star2 in enumerate(stars2):
+        star2[2] += C / sqrt(star2[1])
+        angle2 = star2[2]
+        x2 = star2[1] * cos(angle2)
+        y2 = star2[1] * sin(angle2)
+        stars2_objects[g].pos = vec(x2, y2, 0)
+
+    for l, star3 in enumerate(stars3):
+        star3[2] += C / sqrt(star3[1])
+        angle3 = star3[2]
+        x3 = star3[1] * cos(angle3)
+        y3 = star3[1] * sin(angle3)
+        stars3_objects[l].pos = vec(x3, y3, 0)
+
+    for m, star4 in enumerate(stars4):
+        star4[2] += C / sqrt(star4[1]) * sqrt(1 + (1 - 0.1) * (0.4) ** 0.1)
+        angle4 = star4[2]
+        x4 = star4[1] * cos(angle4)
+        y4 = star4[1] * sin(angle4)
+        stars4_objects[m].pos = vec(x4, y4, 15)
+
+    for z, star5 in enumerate(stars5):
+        star5[2] += C / sqrt(star5[1]) * sqrt(1 + (1 - 0.1) * (0.4) ** 0.1)
+        angle5 = star5[2]
+        x5 = star5[1] * cos(angle5)
+        y5 = star5[1] * sin(angle5)
+        stars5_objects[z].pos = vec(x5, y5, 15)
+
+    for q, star6 in enumerate(stars6):
+        star6[2] += C / sqrt(star6[1]) * sqrt(1 + (1 - 0.1) * (0.4) ** 0.1)
+        angle6 = star6[2]
+        x6 = star6[1] * cos(angle6)
+        y6 = star6[1] * sin(angle6)
+        stars6_objects[q].pos = vec(x6, y6, 15)
+
+    # Plotting
+    ax.clear()
+    ax.scatter([star[1] for star in stars1], [star[2] for star in stars1], color='green', s=2)
+    ax.scatter([star[1] for star in stars2], [star[2] for star in stars2], color='green', s=2)
+    ax.scatter([star[1] for star in stars3], [star[2] for star in stars3], color='green', s=2)
+    ax.scatter([star[1] for star in stars4], [star[2] for star in stars4], color='red', s=2)
+    ax.scatter([star[1] for star in stars5], [star[2] for star in stars5], color='red', s=2)
+    ax.scatter([star[1] for star in stars6], [star[2] for star in stars6], color='red', s=2)
+    ax.set_xlabel("r - distance from center")
+    ax.set_ylabel("v - orbital velocity")
+    plt.pause(0.01)
